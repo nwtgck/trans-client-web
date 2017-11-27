@@ -59,6 +59,14 @@
                 
             }]);
     </script>
+    <style>
+        input[type="submit"] {
+            font-size: 2em;
+            width: 5em;
+            height: 2em;
+            border: 3px solid #ccc;
+        }
+    </style>
 </head>
 <body>
     <div ng-controller="transCtrl">
@@ -95,7 +103,7 @@
             Has delete key: <input type="checkbox" ng-model="option.hasDeleteKey"><br>
             Delete key: <input type="text" ng-model="option.deleteKey" ng-disabled="!option.hasDeleteKey"><br>
             <br>
-            <input type="submit" value="submit">
+            <input type="submit" value="Send files">
         </form>
         <hr/>
 
