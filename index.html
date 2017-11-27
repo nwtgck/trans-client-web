@@ -45,12 +45,12 @@
                     const params = [];
 
                     params.push(`duration=${$scope.option.durationValue}${$scope.option.durationUnit}`);
-                    params.push(`times=${$scope.option.times}`);
-                    params.push(`length=${$scope.option.idLength}`);
+                    params.push(`get-times=${$scope.option.times}`);
+                    params.push(`id-length=${$scope.option.idLength}`);
                     params.push(`deletable=${$scope.option.deletable}`);
 
                     if($scope.option.hasDeleteKey){
-                        params.push(`key=${$scope.option.deleteKey}`);
+                        params.push(`delete-key=${$scope.option.deleteKey}`);
                     }
 
                     const action = `${$scope.serverUrl}/multipart?${params.join('&')}`;
