@@ -100,7 +100,7 @@
             File ID length:
             <input type="number" ng-model="option.idLength"><br>
             Deletable: <input type="checkbox" ng-model="option.deletable"><br>
-            Has delete key: <input type="checkbox" ng-model="option.hasDeleteKey"><br>
+            Has delete key: <input type="checkbox" ng-model="option.hasDeleteKey" ng-disabled="!option.deletable"><br>
             Delete key: <input type="text" ng-model="option.deleteKey" ng-disabled="!option.hasDeleteKey"><br>
             <br>
             <input type="submit" value="Send files">
