@@ -8,9 +8,10 @@
     
     <script>
         angular.module('trans', ['ngSanitize'])
-            .controller('transCtrl', ["$scope", "$sce", ($scope, $sce) => {
+            .controller('transCtrl', ["$scope", "$http", "$sce", ($scope, $http, $sce) => {
                 $scope.serverUrl     =
-                    `${window.location.protocol}//${window.location.hostname}${(window.location.port == 80 || window.location.port == '' ? '': ':'+window.location.port)}`;                
+                    `${window.location.protocol}//${window.location.hostname}${(window.location.port == 80 || window.location.port == '' ? '': ':'+window.location.port)}`;
+                $scope.textData = "";
                 const defaultOption  = {
                     durationValue : 1,
                     durationUnit  : 'h',
@@ -40,8 +41,9 @@
                 ];
                 $scope.currentSampleOption = $scope.sampleOptions[0];
                 
-                
-                $scope.formAction = () => {
+
+                // Create params
+                function createParams(){
                     const params = [];
 
                     params.push(`duration=${$scope.option.durationValue}${$scope.option.durationUnit}`);
@@ -49,21 +51,40 @@
                     params.push(`id-length=${$scope.option.idLength}`);
                     params.push(`deletable=${$scope.option.deletable}`);
 
-                    if($scope.option.hasDeleteKey){
+                    if($scope.option.hasDeleteKey) {
                         params.push(`delete-key=${$scope.option.deleteKey}`);
                     }
 
+                    return params;
+                }
+
+                $scope.formAction = () => {
+                    const params = createParams();
                     const action = `${$scope.serverUrl}/multipart?${params.join('&')}`;
                     return $sce.trustAsResourceUrl(action); // (from: https://stackoverflow.com/a/22577208/2885946)
+                };
+
+                $scope.sendText = () => {
+                    const params = createParams();
+                    const action = `${$scope.serverUrl}/?${params.join('&')}`;
+                    const url    =  $sce.trustAsResourceUrl(action); // (from: https://stackoverflow.com/a/22577208/2885946)
+
+                    $http({
+                        url   : url,
+                        method: "POST",
+                        data  : $scope.textData
+                    }).then((res) => {
+                        prompt("File ID", res.data);
+                    });
                 };
                 
             }]);
     </script>
     <style>
         input[type="submit"] {
-            font-size: 2em;
+            font-size: 1.5em;
             width: 5em;
-            height: 2em;
+            height: 1.5em;
             border: 3px solid #ccc;
         }
     </style>
@@ -73,39 +94,52 @@
         <h1>trans clinet for browser</h1>
 
         <form action="{{formAction()}}" method="post" enctype="multipart/form-data">
-            <h3>Request Server URL</h3>
-            <input type="text" ng-model="serverUrl">
-            <br>
 
             <h3>File input</h3>
             <input type="file" name="input_file" multiple="multiple"><br>
-
-
-            <h3>Option shortcuts</h3>
-            <select ng-model='currentSampleOption' ng-options="sampleOption.name for sampleOption in sampleOptions" ng-change="currentSampleOption.func()" class="form-control" id="sampleOptions">
-            </select><br>
-
-            <h3>Options</h3>
-      
-            Duration:
-            <input type="number" ng-model="option.durationValue">
-            <select ng-model="option.durationUnit">
-                <option value="s">seconds</option>
-                <option value="m">minutes</option>
-                <option value="h">hours</option>
-                <option value="d">days</option>
-            </select><br>
-            Download times:
-            <input type="number" ng-model="option.times"><br>
-            File ID length:
-            <input type="number" ng-model="option.idLength"><br>
-            Deletable: <input type="checkbox" ng-model="option.deletable"><br>
-            Has delete key: <input type="checkbox" ng-model="option.hasDeleteKey" ng-disabled="!option.deletable"><br>
-            Delete key: <input type="text" ng-model="option.deleteKey" ng-disabled="!option.hasDeleteKey"><br>
             <br>
+
             <input type="submit" value="Send files">
         </form>
         <hr/>
+
+        <form ng-submit="sendText()">
+
+            <h3>Text input</h3>
+            <textarea ng-model="textData" cols="30" rows="10" placeholder="Input your text"></textarea><br>
+            <br>
+
+            <input type="submit" value="Send text">
+        </form>
+        <hr/>
+
+        <h3>Request Server URL</h3>
+        <input type="text" ng-model="serverUrl">
+        <br>
+
+        <h3>Options</h3>
+
+        Duration:
+        <input type="number" ng-model="option.durationValue">
+        <select ng-model="option.durationUnit">
+            <option value="s">seconds</option>
+            <option value="m">minutes</option>
+            <option value="h">hours</option>
+            <option value="d">days</option>
+        </select><br>
+        Download times:
+        <input type="number" ng-model="option.times"><br>
+        File ID length:
+        <input type="number" ng-model="option.idLength"><br>
+        Deletable: <input type="checkbox" ng-model="option.deletable"><br>
+        Has delete key: <input type="checkbox" ng-model="option.hasDeleteKey" ng-disabled="!option.deletable"><br>
+        Delete key: <input type="text" ng-model="option.deleteKey" ng-disabled="!option.hasDeleteKey"><br>
+        <b>Option shortcuts</b>:
+        <select ng-model='currentSampleOption' ng-options="sampleOption.name for sampleOption in sampleOptions" ng-change="currentSampleOption.func()" class="form-control" id="sampleOptions">
+        </select><br>
+        <br>
+
+        <hr>
 
         <h2>Command line usage</h2>
         <h3>Send with wget</h3>
