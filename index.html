@@ -8,6 +8,9 @@
     
     <script>
         angular.module('trans', ['ngSanitize'])
+            .config(['$httpProvider', function ($httpProvider) {
+                $httpProvider.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded;charset=utf-8";
+            }])
             .controller('transCtrl', ["$scope", "$http", "$sce", ($scope, $http, $sce) => {
                 $scope.serverUrl     =
                     `${window.location.protocol}//${window.location.hostname}${(window.location.port == 80 || window.location.port == '' ? '': ':'+window.location.port)}`;
