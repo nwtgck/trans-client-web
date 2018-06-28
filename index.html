@@ -15,6 +15,7 @@
                 $scope.serverUrl     =
                     `${window.location.protocol}//${window.location.hostname}${(window.location.port == 80 || window.location.port == '' ? '': ':'+window.location.port)}`;
                 $scope.textData = "";
+                $scope.fileId   = "";
                 const defaultOption  = {
                     durationValue : 1,
                     durationUnit  : 'h',
@@ -83,7 +84,20 @@
                         prompt("File ID", res.data);
                     });
                 };
-                
+
+                $scope.deleteByFileId = () => {
+                    // (from: https://stackoverflow.com/a/22055357/2885946)
+                    const url = $sce.trustAsResourceUrl(`${$scope.serverUrl}/${$scope.fileId}`); // (from: https://stackoverflow.com/a/22577208/2885946)
+                    const input = [];
+                    $http.delete(url, input)
+                        .then((res) => {
+                            alert(res.data);
+                        })
+                        .catch((err) => {
+                            alert(err.data);
+                        });
+                }
+
             }]);
     </script>
     <style>
@@ -116,6 +130,15 @@
             <br>
 
             <input type="submit" value="Send text">
+        </form>
+        <hr/>
+        <form ng-submit="deleteByFileId()">
+            <h3>Delete</h3>
+            File ID:
+            <input ng-model="fileId" type="text" placeholder="Input file ID"><br>
+            <br>
+
+            <input type="submit" value="Delete">
         </form>
         <hr/>
 
