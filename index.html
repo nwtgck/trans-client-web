@@ -16,6 +16,8 @@
                     `${window.location.protocol}//${window.location.hostname}${(window.location.port == 80 || window.location.port == '' ? '': ':'+window.location.port)}`;
                 $scope.textData = "";
                 $scope.fileId   = "";
+                $scope.hasDeleteKeyForDeletion = false;
+                $scope.deleteKeyForDeletion = "";
                 const defaultOption  = {
                     durationValue : 1,
                     durationUnit  : 'h',
@@ -86,9 +88,12 @@
                 };
 
                 $scope.deleteByFileId = () => {
-                    // (from: https://stackoverflow.com/a/22055357/2885946)
-                    const url = $sce.trustAsResourceUrl(`${$scope.serverUrl}/${$scope.fileId}`); // (from: https://stackoverflow.com/a/22577208/2885946)
+                    const action = $scope.hasDeleteKeyForDeletion? 
+                        `${$scope.serverUrl}/${$scope.fileId}?delete-key=${$scope.deleteKeyForDeletion}` :
+                        `${$scope.serverUrl}/${$scope.fileId}`;
+                    const url = $sce.trustAsResourceUrl(action); // (from: https://stackoverflow.com/a/22577208/2885946)
                     const input = [];
+                    // (from: https://stackoverflow.com/a/22055357/2885946)
                     $http.delete(url, input)
                         .then((res) => {
                             alert(res.data);
@@ -136,6 +141,8 @@
             <h3>Delete</h3>
             File ID:
             <input ng-model="fileId" type="text" placeholder="Input file ID"><br>
+            Has delete key: <input type="checkbox" ng-model="hasDeleteKeyForDeletion"><br>
+            Delete key: <input type="text" ng-model="deleteKeyForDeletion" ng-disabled="!hasDeleteKeyForDeletion"><br>
             <br>
 
             <input type="submit" value="Delete">
