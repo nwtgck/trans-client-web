@@ -86,7 +86,7 @@
                         method: "POST",
                         data  : $scope.textData
                     }).then((res) => {
-                        prompt("File ID", res.data);
+                        prompt("File ID", res.data.replace(/[\r\n]+/g, ""));
                     });
                 };
 
