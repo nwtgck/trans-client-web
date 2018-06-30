@@ -25,7 +25,8 @@
                     idLength      : 3,
                     deletable     : true,
                     hasDeleteKey  : false,
-                    deleteKey     : "1234"
+                    deleteKey     : "1234",
+                    secureChar    : false
                 };
                 $scope.option              = Object.assign({}, defaultOption); // Deep copy
 
@@ -44,8 +45,9 @@
                         $scope.option.idLength = 5; 
                     }},
                     {name: "Safe (Lv.2)", func: () => {
-                        $scope.option.times    = 1;
-                        $scope.option.idLength = 8; 
+                        $scope.option.times      = 1;
+                        $scope.option.idLength   = 8;
+                        $scope.option.secureChar = true;
                     }}
                 ];
                 $scope.currentSampleOption = $scope.sampleOptions[0];
@@ -59,6 +61,7 @@
                     params.push(`get-times=${$scope.option.times}`);
                     params.push(`id-length=${$scope.option.idLength}`);
                     params.push(`deletable=${$scope.option.deletable}`);
+                    params.push(`secure-char=${$scope.option.secureChar}`);
 
                     if($scope.option.hasDeleteKey) {
                         params.push(`delete-key=${$scope.option.deleteKey}`);
@@ -167,6 +170,8 @@
         <input type="number" ng-model="option.times"><br>
         File ID length:
         <input type="number" ng-model="option.idLength"><br>
+        Use secure character:
+        <input type="checkbox" ng-model="option.secureChar"><br>
         Deletable: <input type="checkbox" ng-model="option.deletable"><br>
         Has delete key: <input type="checkbox" ng-model="option.hasDeleteKey" ng-disabled="!option.deletable"><br>
         Delete key: <input type="text" ng-model="option.deleteKey" ng-disabled="!option.hasDeleteKey"><br>
