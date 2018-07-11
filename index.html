@@ -104,6 +104,25 @@
                         .catch((err) => {
                             alert(err.data);
                         });
+                };
+
+                $scope.sendFiles = (e) => {
+                    // Get form data
+                    const formData = new FormData(e.target);
+                    // Get action (URL)
+                    const action = $scope.formAction();
+                    // (from: https://qiita.com/zaburo/items/f03433caa710902d599f)
+                    $http.post(action, formData, {
+                        transformRequest: null,
+                        headers: {
+                            "Content-Type": undefined
+                        }
+                    }).then((res) => {
+                        // NOTE: Response can be multiline
+                        alert(res.data);
+                    }).catch((err) => {
+                        console.log(err);
+                    });
                 }
 
             }]);
@@ -121,7 +140,7 @@
     <div ng-controller="transCtrl">
         <h1>trans client for browser</h1>
 
-        <form action="{{formAction()}}" method="post" enctype="multipart/form-data">
+        <form ng-submit="sendFiles($event)" method="post" enctype="multipart/form-data">
 
             <h3>File input</h3>
             <input type="file" name="input_file" multiple="multiple"><br>
