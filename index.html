@@ -80,7 +80,6 @@
                     }
 
                     // If having get-key
-                    console.log($scope.hasGetKey);
                     if($scope.option.hasGetKey){
                         const userAndPassBase64 = btoa(`:${$scope.option.getKey}`);
                         headers["Authorization"] = `Basic ${userAndPassBase64}`;
