@@ -21,6 +21,8 @@
                 const defaultOption  = {
                     durationValue : 1,
                     durationUnit  : 'h',
+                    hasGetKey     : false,
+                    getKey        : "",
                     times         : 100,
                     idLength      : 3,
                     deletable     : true,
@@ -70,6 +72,23 @@
                     return params;
                 }
 
+                // Create POST headers
+                function createPostHeaders(){
+                    // Default headers
+                    const headers = {
+                        "Content-Type": undefined
+                    }
+
+                    // If having get-key
+                    console.log($scope.hasGetKey);
+                    if($scope.option.hasGetKey){
+                        const userAndPassBase64 = btoa(`:${$scope.option.getKey}`);
+                        headers["Authorization"] = `Basic ${userAndPassBase64}`;
+                    }
+
+                    return headers;
+                }
+
                 $scope.formAction = () => {
                     const params = createParams();
                     const action = `${$scope.serverUrl}/multipart?${params.join('&')}`;
@@ -84,7 +103,8 @@
                     $http({
                         url   : url,
                         method: "POST",
-                        data  : $scope.textData
+                        data  : $scope.textData,
+                        headers: createPostHeaders()
                     }).then((res) => {
                         prompt("File ID", res.data.replace(/[\r\n]+/g, ""));
                     });
@@ -111,12 +131,11 @@
                     const formData = new FormData(e.target);
                     // Get action (URL)
                     const action = $scope.formAction();
+
                     // (from: https://qiita.com/zaburo/items/f03433caa710902d599f)
                     $http.post(action, formData, {
                         transformRequest: null,
-                        headers: {
-                            "Content-Type": undefined
-                        }
+                        headers: createPostHeaders()
                     }).then((res) => {
                         // NOTE: Response can be multiline
                         alert(res.data);
@@ -185,6 +204,9 @@
             <option value="h">hours</option>
             <option value="d">days</option>
         </select><br>
+        Get-key:
+        <input type="checkbox" ng-model="option.hasGetKey">
+        <input type="password" ng-model="option.getKey" ng-disabled="!option.hasGetKey"><br>
         Download times:
         <input type="number" ng-model="option.times"><br>
         File ID length:
