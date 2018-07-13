@@ -14,6 +14,9 @@
             .controller('transCtrl', ["$scope", "$http", "$sce", ($scope, $http, $sce) => {
                 $scope.serverUrl     =
                     `${window.location.protocol}//${window.location.hostname}${(window.location.port == 80 || window.location.port == '' ? '': ':'+window.location.port)}`;
+                $scope.recentFileIds = [];
+                // The number of file IDs last sent
+                let nLastSentIds = 0;
                 $scope.textData = "";
                 $scope.fileId   = "";
                 $scope.hasDeleteKeyForDeletion = false;
@@ -105,7 +108,11 @@
                         data  : $scope.textData,
                         headers: createPostHeaders()
                     }).then((res) => {
-                        prompt("File ID", res.data.replace(/[\r\n]+/g, ""));
+                        // Get file ID
+                        const fileId = res.data.replace(/[\r\n]+/g, "");
+                        // Set the number of Ids last set (always 1)
+                        nLastSentIds = 1;
+                        $scope.recentFileIds.push({date: new Date(), entity: fileId});
                     });
                 };
 
@@ -136,12 +143,26 @@
                         transformRequest: null,
                         headers: createPostHeaders()
                     }).then((res) => {
-                        // NOTE: Response can be multiline
-                        alert(res.data);
+                        // Get file IDs
+                        const fileIds = res.data.split("\n");
+                        // Set the number of set ids
+                        nLastSentIds = fileIds.length;
+                        // Push file IDs
+                        $scope.recentFileIds.push(...fileIds.map(id => {return {date: new Date(), entity: id}}));
+                        // // NOTE: Response can be multiline
+                        // alert(res.data);
                     }).catch((err) => {
                         console.log(err);
                     });
-                }
+                };
+
+                $scope.isMostRecentSentIdIdx = (idx) => {
+                    return idx >= $scope.recentFileIds.length - nLastSentIds;
+                };
+
+                $scope.clearRecentFileIds = () => {
+                    $scope.recentFileIds = [];
+                };
 
             }]);
     </script>
@@ -152,11 +173,31 @@
             height: 1.5em;
             border: 3px solid #ccc;
         }
+
+        .bold {
+            text-weight
+        }
     </style>
 </head>
 <body>
     <div ng-controller="transCtrl">
         <h1>trans client for browser</h1>
+
+        <h3>Your file ID history</h3>
+        <div ng-if="recentFileIds.length == 0">There is no history</div>
+        <div ng-if="recentFileIds.length != 0">
+            NOTE: All history is gone when you reload this page.
+        </div>
+        <ul>
+            <li ng-repeat="fileId in recentFileIds">
+                <span ng-style="{'font-weight': isMostRecentSentIdIdx($index) ? 'bold' : 'normal'}">
+                    {{fileId.date | date: 'yyyy/M/d hh:mm:ss'}} - <input type="text" ng-value="fileId.entity" ng-style="{'font-weight': isMostRecentSentIdIdx($index) ? 'bold' : 'normal', 'font-size': '1.5em'}">
+                </span>
+            </li>
+        </ul>
+        <div ng-if="recentFileIds.length != 0">
+            <button ng-click="clearRecentFileIds()">Clear all history</button>
+        </div>
 
         <form ng-submit="sendFiles($event)" method="post" enctype="multipart/form-data">
 
